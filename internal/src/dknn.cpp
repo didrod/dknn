@@ -2,6 +2,8 @@
 #include <omp.h>
 #include <mpi.h>
 
+#include <boost/container/flat_map.hpp>
+
 #include <memory>
 #include <string>
 #include <iostream>
@@ -10,7 +12,10 @@
 namespace dknn {
   using std::vector;
 
-  static feature_set_t __local_train_feature_cache__ = {};
+  using boost::container::flat_map;
+  using id_feature_dict_t = flat_map<feature_id_t, feature_t>;
+
+  static id_feature_dict_t __local_train_feature_cache__ = {};
 
   static void load_cache(vector<feature_id_t> const& ids_to_load) {
     // TODO

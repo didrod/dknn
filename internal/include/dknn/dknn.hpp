@@ -11,7 +11,7 @@ namespace dknn {
   using feature_id_set_t = std::set<feature_id_t>;
 
   using feature_t = std::vector<double>;
-  using feature_set_t = std::map<feature_id_t, feature_t>;
+  using feature_set_t = std::vector<feature_t>;
 
   /**
    * finds nearest k features distributedly using MPI.

@@ -3,13 +3,14 @@ cmake_minimum_required(VERSION 3.10)
 
 find_package(OpenMP REQUIRED)
 find_package(MPI REQUIRED)
+find_package(Boost REQUIRED)
 
 add_library(internal "")
 add_subdirectory(internal)
 target_include_directories(
   internal PUBLIC internal/include)
 target_link_libraries(
-  internal PRIVATE OpenMP::OpenMP_CXX MPI::MPI_CXX)
+  internal PRIVATE OpenMP::OpenMP_CXX MPI::MPI_CXX Boost::boost)
 target_compile_features(internal PUBLIC cxx_std_17)
 target_compile_options(
   internal PRIVATE
