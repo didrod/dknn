@@ -18,8 +18,24 @@ namespace dknn {
 
   static inline std::vector<id_tagged_feature_distance_t>
   calculate_feature_distances(feature_t const& query_feature) {
+    size_t const N = __local_train_feature_cache__.size();
+
     std::vector<id_tagged_feature_distance_t> distances;
-    // TODO
+    distances.resize(N);
+
+#pragma omp parallel for num_threads(4)
+    for (size_t i = 0; i < N; i++) {
+      auto const& [id, train_feature] = *__local_train_feature_cache__.nth(i);
+
+      double distance = 0.;
+      for (size_t i = 0; i < train_feature.size(); i++) {
+        auto const& c_q = query_feature.at(i);
+        auto const& c_t = train_feature.at(i);
+        auto const delta = c_t - c_q;
+        distance += delta * delta;
+      }
+      distances[i] = {id, distance};
+    }
     return distances;
   }
 
@@ -42,8 +58,14 @@ namespace dknn {
 
   feature_id_set_t node_local_nearest_k(
     size_t k, feature_t const& query_feature) {
-    if (k <= __local_train_feature_cache__.size())
+    if (k > __local_train_feature_cache__.size()) {
+      auto msg = "K is greater than train set size";
+      std::cerr << msg << std::endl;
+      std::cerr << "k: " << k << std::endl;
+      std::cerr << "train set size: " << __local_train_feature_cache__.size()
+                << std::endl;
       return feature_id_set_of(__local_train_feature_cache__);
+    }
 
     auto distances = calculate_feature_distances(query_feature);
     if (distances.size() != __local_train_feature_cache__.size()) {
