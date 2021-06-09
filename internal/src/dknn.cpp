@@ -21,7 +21,7 @@ namespace dknn {
     // TODO
   }
 
-  static feature_id_set_t local_brute_force_nearest_k(
+  static vector<feature_id_set_t> local_brute_force_nearest_k(
     size_t k, feature_set_t const& query_set) {
     // TODO
     return {};
@@ -54,25 +54,53 @@ namespace dknn {
     return subworker_train_feature_ids;
   }
 
-  static feature_id_set_t gather_nearest_k(
-    int rank, int workers, size_t k, feature_id_set_t const& local_nearest_k) {
-    vector<feature_id_t> flatten_nearest_k;
-    flatten_nearest_k.reserve(k);
-    flatten_nearest_k.insert(
-      flatten_nearest_k.end(), local_nearest_k.begin(), local_nearest_k.end());
+  static vector<feature_id_set_t> gather_local_knn_results(
+    int rank, int workers, size_t k, size_t query_set_size,
+    vector<feature_id_set_t> const& local_knn_results) {
+    if (query_set_size != local_knn_results.size()) {
+      std::cerr << "query set size and local knn result size mismatches!"
+                << std::endl;
+      return {};
+    }
 
-    size_t gather_size = workers * k;
-    vector<feature_id_t> gathered_nearest_k;
+    vector<feature_id_t> local_flatten_knn_results;
+    local_flatten_knn_results.reserve(k * query_set_size);
+    for (auto const& knn_result : local_knn_results) {
+      local_flatten_knn_results.insert(
+        local_flatten_knn_results.end(), knn_result.begin(), knn_result.end());
+    }
+
+    size_t gather_size = workers * k * query_set_size;
+    vector<feature_id_t> gathered_flat_knn_results;
     if (rank == 0)
-      gathered_nearest_k.resize(gather_size);
+      gathered_flat_knn_results.resize(gather_size);
     MPI_Gather(
-      flatten_nearest_k.data(), k, MPI_UINT64_T, gathered_nearest_k.data(),
-      gather_size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
-    return feature_id_set_t(
-      gathered_nearest_k.begin(), gathered_nearest_k.end());
+      local_flatten_knn_results.data(), k * query_set_size, MPI_UINT64_T,
+      gathered_flat_knn_results.data(), gather_size, MPI_UINT64_T, 0,
+      MPI_COMM_WORLD);
+
+    vector<feature_id_set_t> gathered_knn_results;
+    gathered_knn_results.resize(query_set_size);
+    for (int r = 0; r < workers; r++) {
+      for (size_t i = 0; i < query_set_size; i++) {
+        auto& knn_result = gathered_knn_results[i];
+
+        auto data_start =
+          &gathered_flat_knn_results[r * k * query_set_size + k * i];
+        auto data_end = data_start + k;
+        knn_result.insert(data_start, data_end);
+      }
+    }
+    return gathered_knn_results;
   }
 
-  feature_id_set_t mpi_brute_force_nearest_k(
+  static vector<feature_id_set_t> crop_nearest_k(
+    size_t k, vector<feature_id_set_t> const& gathered_knn_results) {
+    // TODO: crop nearest K
+    return {};
+  }
+
+  vector<feature_id_set_t> mpi_brute_force_nearest_k(
     size_t k, feature_id_set_t const& train_feature_ids,
     feature_set_t const& query_set) {
     int workers = -1, rank = -1;
@@ -89,16 +117,16 @@ namespace dknn {
       return {};
     }
 
+    // from here is executed in *scattered context*
+    // (i.e. executed in each node concurrently).
     auto subworker_train_features =
       scatter_train_feature_ids(rank, workers, train_feature_ids);
     load_cache(subworker_train_features);
-    auto local_nearest_k = local_brute_force_nearest_k(k, query_set);
-    auto gathered_nearest_k =
-      gather_nearest_k(rank, workers, k, local_nearest_k);
+    auto local_knn_results = local_brute_force_nearest_k(k, query_set);
+    auto gathered_knn_results = gather_local_knn_results(
+      rank, workers, k, query_set.size(), local_knn_results);
+    // now we go back to *gathered context*.
 
-    auto s = gathered_nearest_k.begin();
-    auto e = s;
-    std::advance(e, k);
-    return feature_id_set_t(s, e);
+    return crop_nearest_k(k, gathered_knn_results);
   }
 }  // namespace dknn
