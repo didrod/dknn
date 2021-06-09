@@ -33,7 +33,7 @@ target_compile_features(dknn_test PRIVATE cxx_std_17)
 add_custom_target(run_test DEPENDS dknn_test)
 add_custom_command(
   TARGET run_test
-  COMMAND mpiexec -n 4 ${CMAKE_CURRENT_BINARY_DIR}/dknn_test -s
+  COMMAND mpiexec -n 4 ${CMAKE_CURRENT_BINARY_DIR}/dknn_test
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   POST_BUILD
 )
