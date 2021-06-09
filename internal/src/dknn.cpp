@@ -99,7 +99,7 @@ namespace dknn {
     // (i.e. executed in each node concurrently).
     auto subworker_train_features =
       scatter_train_feature_ids(rank, workers, train_feature_ids);
-    load_cache(subworker_train_features);
+    load_train_data(subworker_train_features);
     auto local_knn_results = node_local_nearest_k(k, query_set);
     auto gathered_knn_results = gather_local_knn_results(
       rank, workers, k, query_set.size(), local_knn_results);

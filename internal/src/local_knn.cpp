@@ -9,7 +9,7 @@ namespace dknn {
 
   static id_feature_dict_t __local_train_feature_cache__ = {};
 
-  void load_cache(std::vector<feature_id_t> const& ids_to_load) {
+  void load_train_data(std::vector<feature_id_t> const& ids_to_load) {
     // TODO
   }
 
