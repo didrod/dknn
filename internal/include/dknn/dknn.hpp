@@ -30,14 +30,32 @@ namespace dknn {
   template <int dimension>
   using feature_set_t = std::map<feature_id_t, feature_t<dimension>>;
 
+  template <int dimension>
+  static mpi_feature_set_flatten_data_t __flatten_feature_set_data__(
+    feature_set_t<dimension> const& data) {
+    mpi_feature_set_flatten_data_t result;
+    result.set_size = data.size();
+    result.feature_dimension = dimension;
+    result.data.reserve(dimension * data.size());
+    size_t i = 0;
+    for (auto const& [id, feature] : data) {
+      result.data.insert(result.data.end(), feature.begin(), feature.end());
+      result.index_id_lookup.emplace(i, id);
+      i++;
+    }
+    return result;
+  }
+
   /**
    * provides high-level interface to __mpi_brute_force_nearest_k__().
    */
   template <int dimension>
-  feature_id_set_t brute_force_nearest_k(
+  static feature_id_set_t brute_force_nearest_k(
     feature_set_t<dimension> const& train_data,
     feature_set_t<dimension> const& query_data) {
-    // TODO
-    return {};
+    auto flatten_train_data = __flatten_feature_set_data__(train_data);
+    auto flatten_query_data = __flatten_feature_set_data__(query_data);
+    return __mpi_brute_force_nearest_k__(
+      flatten_train_data, flatten_query_data);
   }
 }  // namespace dknn
