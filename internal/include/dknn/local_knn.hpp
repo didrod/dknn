@@ -10,6 +10,8 @@ namespace dknn {
 
   void load_train_data(std::vector<feature_id_t> const& ids_to_load);
 
+  feature_id_set_t node_local_nearest_k(
+    size_t k, feature_t const& query_feature);
   std::vector<feature_id_set_t> node_local_nearest_k(
     size_t k, feature_set_t const& query_set);
 }  // namespace dknn
