@@ -3,9 +3,15 @@
 #include <mpi.h>
 
 namespace dknn {
-  feature_id_set_t __mpi_brute_force_nearest_k__(
-    mpi_feature_set_flatten_data_t const& flatten_train_data,
-    mpi_feature_set_flatten_data_t const& flatten_query_data) {
+  static feature_set_t __local_train_feature_cache__ = {};
+
+  static void load_cache(vector<feature_id_t> const& ids_to_load) {
+    // TODO
+  }
+
+  feature_id_set_t mpi_brute_force_nearest_k(
+    size_t k, feature_id_set_t const& train_feature_ids,
+    feature_set_t const& query_set) {
     // TODO: implement this
     return {};
   }
