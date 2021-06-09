@@ -9,8 +9,8 @@ add_subdirectory(internal)
 target_include_directories(
   internal PUBLIC internal/include)
 target_link_libraries(
-  internal PRIVATE OpenMP::OpenMP_C MPI::MPI_C)
-target_compile_features(internal PUBLIC c_std_11)
+  internal PRIVATE OpenMP::OpenMP_CXX MPI::MPI_CXX)
+target_compile_features(internal PUBLIC cxx_std_17)
 target_compile_options(
   internal PRIVATE
   -ffast-math

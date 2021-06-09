@@ -1,6 +1,4 @@
-extern "C" {
-#include "dknn/dknn.h"
-}
+#include "dknn/dknn.hpp"
 #include <mpi.h>
 
 int main(int argc, char** argv) {
