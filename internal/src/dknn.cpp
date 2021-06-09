@@ -1,31 +1,9 @@
 #include "dknn/dknn.hpp"
-#include <omp.h>
+#include "dknn/local_knn.hpp"
 #include <mpi.h>
-
-#include <boost/container/flat_map.hpp>
-
-#include <memory>
-#include <string>
-#include <iostream>
-#include <iterator>
 
 namespace dknn {
   using std::vector;
-
-  using boost::container::flat_map;
-  using id_feature_dict_t = flat_map<feature_id_t, feature_t>;
-
-  static id_feature_dict_t __local_train_feature_cache__ = {};
-
-  static void load_cache(vector<feature_id_t> const& ids_to_load) {
-    // TODO
-  }
-
-  static vector<feature_id_set_t> local_brute_force_nearest_k(
-    size_t k, feature_set_t const& query_set) {
-    // TODO
-    return {};
-  }
 
   static vector<feature_id_t> scatter_train_feature_ids(
     int rank, int workers, feature_id_set_t const& train_feature_ids) {
@@ -122,7 +100,7 @@ namespace dknn {
     auto subworker_train_features =
       scatter_train_feature_ids(rank, workers, train_feature_ids);
     load_cache(subworker_train_features);
-    auto local_knn_results = local_brute_force_nearest_k(k, query_set);
+    auto local_knn_results = node_local_nearest_k(k, query_set);
     auto gathered_knn_results = gather_local_knn_results(
       rank, workers, k, query_set.size(), local_knn_results);
     // now we go back to *gathered context*.
