@@ -19,3 +19,11 @@ A toy implementation of distributed k nearest neighbors.
 $ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=yes
 $ cmake --build build --target run_test
 ```
+
+## Running formatter
+Copy-paste the following command.
+
+``` bash
+$ find . -regex '.*\.\(cpp\|hpp\|c\|h\)' \
+    -not -path './build/*' -and -not -path './.*' -exec clang-format -i -style=file {} \;
+```
