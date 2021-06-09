@@ -39,10 +39,18 @@ add_custom_command(
   POST_BUILD
 )
 
-add_custom_target(run_test DEPENDS dknn_test)
+add_custom_target(run_test_single_node DEPENDS dknn_test)
 add_custom_command(
-  TARGET run_test
-  COMMAND mpiexec -n 4 ${CMAKE_CURRENT_BINARY_DIR}/dknn_test
+  TARGET run_test_single_node
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/dknn_test '[local-knn-0]'
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+  POST_BUILD
+)
+
+add_custom_target(run_test_distributed DEPENDS dknn_test)
+add_custom_command(
+  TARGET run_test_distributed
+  COMMAND mpiexec -n 4 ${CMAKE_CURRENT_BINARY_DIR}/dknn_test '[dknn-0]'
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   POST_BUILD
 )
