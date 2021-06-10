@@ -48,7 +48,7 @@ TEST_CASE("Test distributed knn search", "[distributed-0]") {
   }
 
   auto query_results = dknn::mpi_brute_force_nearest_k(
-    3, {1, 2, 3, 5, 6, 7, 13, 15, 17, 18, 19, 20},
+    3,
     {
       {0.0, 0.0},  // query #0: cluster 0
       {0.5, 0.0},  // query #1: midpoint of cluster 0 and cluster 1

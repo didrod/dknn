@@ -83,8 +83,7 @@ namespace dknn {
   }
 
   vector<feature_id_set_t> mpi_brute_force_nearest_k(
-    size_t k, feature_id_set_t const& train_feature_ids,
-    feature_set_t const& query_set) {
+    size_t k, feature_set_t const& query_set) {
     // this part is executed in *scattered context*
     // (i.e. executed in each node concurrently).
     auto scattered_knn_results = nearest_k(k, query_set);
