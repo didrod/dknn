@@ -8,5 +8,5 @@ namespace dknn {
   using feature_dataset_t = flat_map<feature_id_t, feature_t>;
   extern feature_dataset_t __feature_dataset__;
 
-  void load_feature_dataset();
+  void load_feature_dataset(std::string filename);
 }  // namespace dknn

@@ -39,7 +39,8 @@ namespace dknn {
       return false;
     }
 
-    load_feature_dataset();
+    auto argv = *pargv;
+    load_feature_dataset(argv[1]);
 
     return true;
   }
