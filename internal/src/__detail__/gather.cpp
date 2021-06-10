@@ -15,7 +15,7 @@ namespace dknn {
 
   static MPI_Datatype __mpi_knn_query_result_entry_t__ = MPI_DATATYPE_NULL;
 
-  bool scatter_gather_init() {
+  bool __dknn_gather__init() {
     MPI_Aint displacements[3];
     MPI_Aint base_address;
 
@@ -75,13 +75,8 @@ namespace dknn {
   }
 
   knn_set_query_result_t gather(
-    size_t k, size_t query_set_size,
-    knn_set_query_result_t const& scattered_results) {
-    if (query_set_size != scattered_results.size()) {
-      std::cerr << "query set size and local knn result size mismatches!"
-                << std::endl;
-      return {};
-    }
+    size_t k, knn_set_query_result_t const& scattered_results) {
+    size_t query_set_size = scattered_results.size();
     size_t scattered_data_size = k * query_set_size;
     size_t gathered_data_size = world_size() * scattered_data_size;
 

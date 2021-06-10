@@ -1,7 +1,7 @@
 #include "dknn/dknn.hpp"
 #include "dknn/__detail__/dataset.hpp"
 #include "dknn/__detail__/local_jobs.hpp"
-#include "dknn/__detail__/scatter_gather.hpp"
+#include "dknn/__detail__/gather.hpp"
 
 #include <mpi.h>
 
@@ -33,8 +33,8 @@ namespace dknn {
       return false;
     }
 
-    if (!scatter_gather_init()) {
-      auto fmt = boost::format("MPI scatter/gather type commit failed");
+    if (!__dknn_gather__init()) {
+      auto fmt = boost::format("MPI type commit failed");
       std::cerr << fmt << std::endl;
       return false;
     }
@@ -89,8 +89,7 @@ namespace dknn {
     auto scattered_knn_results = nearest_k(k, query_set);
 
     // then we gather the results to the master node.
-    auto gathered_knn_results =
-      gather(k, query_set.size(), scattered_knn_results);
+    auto gathered_knn_results = gather(k, scattered_knn_results);
 
     return crop_nearest_k(k, gathered_knn_results);
   }
