@@ -1,4 +1,4 @@
-#include "dknn/local_knn.hpp"
+#include "dknn/__detail__/local_jobs.hpp"
 #include <catch2/catch.hpp>
 
 namespace dknn {
@@ -9,7 +9,7 @@ namespace dknn {
     return result;
   }
 
-  TEST_CASE("Test node-local knn search", "[local-knn-0]") {
+  TEST_CASE("Test node-local knn search", "[local-0]") {
     __local_train_feature_cache__.clear();
     __local_train_feature_cache__ = {
       // class 1

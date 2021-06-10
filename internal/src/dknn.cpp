@@ -1,5 +1,5 @@
 #include "dknn/dknn.hpp"
-#include "dknn/local_knn.hpp"
+#include "dknn/__detail__/local_jobs.hpp"
 #include <mpi.h>
 
 #include <boost/format.hpp>

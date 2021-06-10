@@ -1,4 +1,4 @@
-#include "dknn/local_knn.hpp"
+#include "dknn/__detail__/local_jobs.hpp"
 
 #include <boost/container/flat_map.hpp>
 #include <omp.h>

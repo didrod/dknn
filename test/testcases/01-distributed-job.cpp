@@ -1,5 +1,5 @@
 #include "dknn/dknn.hpp"
-#include "dknn/local_knn.hpp"
+#include "dknn/__detail__/local_jobs.hpp"
 
 #include <algorithm>
 #include <random>
@@ -15,7 +15,7 @@ static auto scatter(
   return result;
 }
 
-TEST_CASE("Test distributed knn search", "[dknn-0]") {
+TEST_CASE("Test distributed knn search", "[distributed-0]") {
   auto rank = dknn::node_rank();
   auto nworkers = dknn::world_size();
 
