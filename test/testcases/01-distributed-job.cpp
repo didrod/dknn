@@ -6,12 +6,15 @@
 #include <catch2/catch.hpp>
 
 static auto generate_feature_dataset(
-  std::mt19937& rgen, dknn::feature_id_set_t const& ids, double x, double y) {
+  std::mt19937& rgen, dknn::feature_id_set_t const& ids, int cls, double x,
+  double y) {
   std::normal_distribution<> rand(0, 0.1);
 
   dknn::feature_dataset_t result;
-  for (auto id : ids)
-    result.emplace(id, dknn::feature_t {x + rand(rgen), y + rand(rgen)});
+  for (auto id : ids) {
+    auto feature = dknn::feature_t {x + rand(rgen), y + rand(rgen)};
+    result.emplace(id, std::make_tuple(cls, feature));
+  }
   return result;
 }
 
@@ -21,19 +24,20 @@ static bool load_test_dataset(int rank) {
 
   switch (rank) {
   case 0:
-    dknn::__feature_dataset__ = generate_feature_dataset(rgen, {1, 2, 3}, 0, 0);
+    dknn::__feature_dataset__ =
+      generate_feature_dataset(rgen, {1, 2, 3}, 0, 0, 0);
     return true;
   case 1:
     dknn::__feature_dataset__ =
-      generate_feature_dataset(rgen, {5, 6, 7}, 1.0, 0);
+      generate_feature_dataset(rgen, {5, 6, 7}, 1, 1.0, 0);
     return true;
   case 2:
     dknn::__feature_dataset__ =
-      generate_feature_dataset(rgen, {13, 15, 17}, 5.0, 5.0);
+      generate_feature_dataset(rgen, {13, 15, 17}, 2, 5.0, 5.0);
     return true;
   case 3:
     dknn::__feature_dataset__ =
-      generate_feature_dataset(rgen, {18, 19, 20}, 9.0, 10.0);
+      generate_feature_dataset(rgen, {18, 19, 20}, 3, 9.0, 10.0);
     return true;
   default:
     return false;
@@ -74,13 +78,12 @@ TEST_CASE("Test distributed knn search", "[distributed-0]") {
 
   auto cluster_01 = dknn::feature_id_set_t {1, 2, 3, 5, 6, 7};
 
-  CHECK(q0 == dknn::feature_id_set_t {1, 2, 3});
-  CHECK(
-    std::includes(cluster_01.begin(), cluster_01.end(), q1.begin(), q1.end()));
-  CHECK(q2 == dknn::feature_id_set_t {13, 15, 17});
-  CHECK(q3 == dknn::feature_id_set_t {18, 19, 20});
+  CHECK(q0 == 0);
+  CHECK((q1 == 0 || q1 == 1));
+  CHECK(q2 == 2);
+  CHECK(q3 == 3);
 
-  CHECK(q4.size() == 3);
+  CHECK((q4 >= 0 && q4 < 4));
 }
 
 TEST_CASE(
@@ -118,11 +121,10 @@ TEST_CASE(
 
   auto cluster_01 = dknn::feature_id_set_t {1, 2, 3, 5, 6, 7};
 
-  CHECK(q0 == dknn::feature_id_set_t {1, 2, 3});
-  CHECK(
-    std::includes(cluster_01.begin(), cluster_01.end(), q1.begin(), q1.end()));
-  CHECK(q2 == dknn::feature_id_set_t {13, 15, 17});
-  CHECK(q3 == dknn::feature_id_set_t {18, 19, 20});
+  CHECK(q0 == 0);
+  CHECK((q1 == 0 || q1 == 1));
+  CHECK(q2 == 2);
+  CHECK(q3 == 3);
 
-  CHECK(q4.size() == 3);
+  CHECK((q4 >= 0 && q4 < 4));
 }

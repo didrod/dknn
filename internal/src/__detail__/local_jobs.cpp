@@ -18,7 +18,8 @@ namespace dknn {
 
 #pragma omp parallel for num_threads(4)
     for (size_t i = 0; i < N; i++) {
-      auto const& [id, train_feature] = *__feature_dataset__.nth(i);
+      auto const& [id, data] = *__feature_dataset__.nth(i);
+      auto const& [_class, train_feature] = data;
 
       double distance = 0.;
       for (size_t i = 0; i < train_feature.size(); i++) {
@@ -27,7 +28,7 @@ namespace dknn {
         auto const delta = c_t - c_q;
         distance += delta * delta;
       }
-      feature_class_t feature_class = 0;  // TODO
+      feature_class_t feature_class = _class;
       matches[i] = {id, distance, feature_class};
     }
     return matches;

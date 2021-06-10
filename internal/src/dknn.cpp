@@ -58,9 +58,9 @@ namespace dknn {
     return _world_size;
   }
 
-  static vector<feature_id_set_t> crop_nearest_k(
+  static knn_set_query_result_t crop_nearest_k(
     size_t k, knn_set_query_result_t gathered_set_query_result) {
-    vector<feature_id_set_t> result;
+    knn_set_query_result_t result;
 
     for (auto& query_result : gathered_set_query_result) {
       auto match_comparison = [](auto const& a, auto const& b) {
@@ -72,17 +72,44 @@ namespace dknn {
         query_result.begin(), query_result.begin() + k, query_result.end(),
         match_comparison);
 
-      feature_id_set_t nearest_k_set;
-      for (size_t i = 0; i < k; i++) {
-        auto const& [id, distance, _class] = query_result.at(i);
-        nearest_k_set.emplace(id);
-      }
-      result.emplace_back(nearest_k_set);
+      knn_query_result_t nearest_k;
+      for (size_t i = 0; i < k; i++)
+        nearest_k.emplace_back(query_result.at(i));
+      result.emplace_back(nearest_k);
     }
     return result;
   }
 
-  vector<feature_id_set_t> mpi_brute_force_nearest_k(
+  static feature_class_t classify(knn_query_result_t const& result) {
+    std::map<feature_class_t, size_t> counts;
+    // zero-initialize
+    for (auto const& [_, __, _class] : result)
+      counts[_class] = 0;
+
+    for (auto const& [_, __, _class] : result)
+      counts[_class]++;
+
+    auto count_compare =
+      [](auto const& class_count_a, auto const& class_count_b) {
+        auto const& [class_a, count_a] = class_count_a;
+        auto const& [class_b, count_b] = class_count_b;
+        return count_a < count_b;
+      };
+
+    auto const& [max_class, max_count] =
+      *std::max_element(counts.begin(), counts.end(), count_compare);
+    return max_class;
+  }
+
+  static vector<feature_class_t> classify(
+    knn_set_query_result_t const& set_query_results) {
+    vector<feature_class_t> result;
+    for (auto const& query_result : set_query_results)
+      result.emplace_back(classify(query_result));
+    return result;
+  }
+
+  vector<feature_class_t> mpi_brute_force_nearest_k(
     size_t k, feature_set_t const& query_set) {
     // this part is executed in *scattered context*
     // (i.e. executed in each node concurrently).
@@ -90,7 +117,7 @@ namespace dknn {
 
     // then we gather the results to the master node.
     auto gathered_knn_results = gather(k, scattered_knn_results);
-
-    return crop_nearest_k(k, gathered_knn_results);
+    auto nearest_k_set = crop_nearest_k(k, gathered_knn_results);
+    return classify(nearest_k_set);
   }
 }  // namespace dknn

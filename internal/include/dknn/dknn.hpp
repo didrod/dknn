@@ -13,11 +13,11 @@ namespace dknn {
   /**
    * finds nearest k features distributedly using MPI.
    */
-  std::vector<feature_id_set_t> mpi_brute_force_nearest_k(
+  std::vector<feature_class_t> mpi_brute_force_nearest_k(
     size_t k, feature_set_t const& query_set);
 
   template <typename query_loader_t>
-  std::vector<feature_id_set_t> mpi_brute_force_nearest_k(
+  std::vector<feature_class_t> mpi_brute_force_nearest_k(
     size_t k, query_loader_t query_loader) {
     if (node_rank() == 0) {
       auto query_set = query_loader();

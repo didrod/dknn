@@ -7,7 +7,8 @@ namespace dknn {
   feature_dataset_t __feature_dataset__ = {};
 
   // csv parser : from http://www.zedwood.com/article/cpp-csv-parser
-  std::vector<std::string> csv_read_row(std::istream& in, char delimiter) {
+  static std::vector<std::string> csv_read_row(
+    std::istream& in, char delimiter) {
     std::stringstream ss;
     bool inquotes = false;
     std::vector<std::string> row;  // relying on RVO
@@ -60,13 +61,13 @@ namespace dknn {
       }
 
       feature_id_t id = std::stoi(row.at(c - 1));
-      feature_id_t _class = std::stoi(row.at(c - 2));
+      feature_class_t _class = std::stoi(row.at(c - 2));
 
       feature_t feature;
       for (size_t i = 0; i < row.size() - 2; i++)
         feature.emplace_back(std::stod(row.at(i)));
 
-      __feature_dataset__.emplace(id, feature);  // TODO: class
+      __feature_dataset__.emplace(id, std::make_tuple(_class, feature));
     }
   }
 }  // namespace dknn
