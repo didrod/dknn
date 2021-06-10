@@ -1,4 +1,5 @@
 #include "dknn/dknn.hpp"
+#include "dknn/__detail__/dataset.hpp"
 #include "dknn/__detail__/local_jobs.hpp"
 #include "dknn/__detail__/scatter_gather.hpp"
 
@@ -38,6 +39,8 @@ namespace dknn {
       return false;
     }
 
+    load_feature_dataset();
+
     return true;
   }
 
@@ -67,7 +70,6 @@ namespace dknn {
 
     // from here is executed in *scattered context*
     // (i.e. executed in each node concurrently).
-    load_train_data(subworker_train_features);
     auto scattered_knn_results = nearest_k(k, query_set);
 
     // now we go back to *gathered context*.

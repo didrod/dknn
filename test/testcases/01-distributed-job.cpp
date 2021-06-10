@@ -1,5 +1,5 @@
 #include "dknn/dknn.hpp"
-#include "dknn/__detail__/local_jobs.hpp"
+#include "dknn/__detail__/dataset.hpp"
 
 #include <algorithm>
 #include <random>

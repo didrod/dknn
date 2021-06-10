@@ -1,4 +1,5 @@
 #include "dknn/__detail__/local_jobs.hpp"
+#include "dknn/__detail__/dataset.hpp"
 #include <catch2/catch.hpp>
 
 namespace dknn {

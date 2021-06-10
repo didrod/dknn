@@ -1,4 +1,5 @@
 #include "dknn/__detail__/local_jobs.hpp"
+#include "dknn/__detail__/dataset.hpp"
 
 #include <boost/container/flat_map.hpp>
 #include <omp.h>
@@ -8,12 +9,6 @@
 #include <iostream>
 
 namespace dknn {
-  id_feature_dict_t __local_train_feature_cache__ = {};
-
-  void load_train_data(std::vector<feature_id_t> const& ids_to_load) {
-    // TODO
-  }
-
   using id_tagged_feature_match_t =
     std::tuple<feature_id_t, feature_distance_t, feature_class_t>;
 
