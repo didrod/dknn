@@ -9,14 +9,11 @@
 #include <iostream>
 
 namespace dknn {
-  using id_tagged_feature_match_t =
-    std::tuple<feature_id_t, feature_distance_t, feature_class_t>;
-
-  static inline std::vector<id_tagged_feature_match_t>
-  calculate_feature_matches(feature_t const& query_feature) {
+  static inline std::vector<feature_match_info_t> calculate_feature_matches(
+    feature_t const& query_feature) {
     size_t const N = __feature_dataset__.size();
 
-    std::vector<id_tagged_feature_match_t> matches;
+    std::vector<feature_match_info_t> matches;
     matches.resize(N);
 
 #pragma omp parallel for num_threads(4)
@@ -65,12 +62,7 @@ namespace dknn {
     std::partial_sort(
       matches.begin(), matches.begin() + k, matches.end(), comparison_function);
 
-    knn_query_result_t result;
-    for (size_t i = 0; i < k; i++) {
-      auto const& [id, distance, cls] = matches.at(i);
-      result.emplace(id, feature_match_info_t {distance, cls});
-    }
-    return result;
+    return knn_query_result_t(matches.begin(), matches.begin() + k);
   }
 
   knn_set_query_result_t nearest_k(size_t k, feature_set_t const& query_set) {

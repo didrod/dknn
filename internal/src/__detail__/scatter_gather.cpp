@@ -9,8 +9,8 @@ namespace dknn {
 
   struct mpi_knn_query_result_entry_t {
     feature_id_t feature_id;
-    feature_class_t feature_class;
     feature_distance_t distance;
+    feature_class_t feature_class;
   };
 
   static MPI_Datatype __mpi_knn_query_result_entry_t__ = MPI_DATATYPE_NULL;
@@ -22,15 +22,15 @@ namespace dknn {
     mpi_knn_query_result_entry_t dummy;
     MPI_Get_address(&dummy, &base_address);
     MPI_Get_address(&dummy.feature_id, &displacements[0]);
-    MPI_Get_address(&dummy.feature_class, &displacements[1]);
-    MPI_Get_address(&dummy.distance, &displacements[2]);
+    MPI_Get_address(&dummy.distance, &displacements[1]);
+    MPI_Get_address(&dummy.feature_class, &displacements[2]);
 
     for (auto& displacement : displacements)
       displacement = MPI_Aint_diff(displacement, base_address);
 
     int lengths[3] = {1, 1, 1};
 
-    MPI_Datatype fields[3] = {MPI_UINT64_T, MPI_UINT64_T, MPI_DOUBLE};
+    MPI_Datatype fields[3] = {MPI_UINT64_T, MPI_DOUBLE, MPI_UINT64_T};
     MPI_Type_create_struct(
       3, lengths, displacements, fields, &__mpi_knn_query_result_entry_t__);
     return MPI_Type_commit(&__mpi_knn_query_result_entry_t__) == MPI_SUCCESS;
@@ -68,10 +68,10 @@ namespace dknn {
     vector<mpi_knn_query_result_entry_t> result;
     result.reserve(reserve_size);
     for (auto const& knn_result : scattered_knn_results) {
-      for (auto const& entry : knn_result) {
-        auto const& [id, data] = entry;
-        auto const& [distance, cls] = data;
-        result.emplace_back(mpi_knn_query_result_entry_t {id, cls, distance});
+      for (auto const& data : knn_result) {
+        auto const& [id, distance, _class] = data;
+        result.emplace_back(
+          mpi_knn_query_result_entry_t {id, distance, _class});
       }
     }
     return result;
@@ -92,7 +92,8 @@ namespace dknn {
         auto e = s + k;
         for (auto p = s; p < e; p++) {
           auto const& data = *p;
-          knn_result[data.feature_id] = {data.distance, data.feature_class};
+          knn_result.emplace_back(feature_match_info_t {
+            data.feature_id, data.distance, data.feature_class});
         }
       }
     }

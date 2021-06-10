@@ -5,7 +5,7 @@
 namespace dknn {
   static feature_id_set_t feature_ids(knn_query_result_t const& query_result) {
     feature_id_set_t result;
-    for (auto const& [id, _] : query_result)
+    for (auto const& [id, _, __] : query_result)
       result.emplace(id);
     return result;
   }
