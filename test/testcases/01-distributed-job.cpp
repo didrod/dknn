@@ -26,8 +26,7 @@ TEST_CASE("Test distributed knn search", "[distributed-0]") {
 
   switch (rank) {
   case 0:
-    dknn::__feature_dataset__ =
-      generate_feature_dataset(rgen, {1, 2, 3, 4}, 0, 0);
+    dknn::__feature_dataset__ = generate_feature_dataset(rgen, {1, 2, 3}, 0, 0);
     break;
   case 1:
     dknn::__feature_dataset__ =

@@ -58,9 +58,27 @@ namespace dknn {
   }
 
   static vector<feature_id_set_t> crop_nearest_k(
-    size_t k, knn_set_query_result_t const& gathered_knn_results) {
-    // TODO: crop nearest K
-    return {};
+    size_t k, knn_set_query_result_t gathered_set_query_result) {
+    vector<feature_id_set_t> result;
+
+    for (auto& query_result : gathered_set_query_result) {
+      auto match_comparison = [](auto const& a, auto const& b) {
+        auto const& [id_a, distance_a, class_a] = a;
+        auto const& [id_b, distance_b, class_b] = b;
+        return distance_a <= distance_b;
+      };
+      std::partial_sort(
+        query_result.begin(), query_result.begin() + k, query_result.end(),
+        match_comparison);
+
+      feature_id_set_t nearest_k_set;
+      for (size_t i = 0; i < k; i++) {
+        auto const& [id, distance, _class] = query_result.at(i);
+        nearest_k_set.emplace(id);
+      }
+      result.emplace_back(nearest_k_set);
+    }
+    return result;
   }
 
   vector<feature_id_set_t> mpi_brute_force_nearest_k(
