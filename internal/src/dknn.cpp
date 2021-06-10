@@ -183,7 +183,7 @@ namespace dknn {
     // from here is executed in *scattered context*
     // (i.e. executed in each node concurrently).
     load_train_data(subworker_train_features);
-    auto local_knn_results = node_local_nearest_k(k, query_set);
+    auto local_knn_results = nearest_k(k, query_set);
 
     // now we go back to *gathered context*.
     auto gathered_knn_results =

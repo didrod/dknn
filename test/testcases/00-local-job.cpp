@@ -23,7 +23,7 @@ namespace dknn {
       {6, {1.0, 1.1}},
     };
 
-    auto result = node_local_nearest_k(3, {{0.0, 0.0}, {1.0, 1.0}});
+    auto result = nearest_k(3, {{0.0, 0.0}, {1.0, 1.0}});
     REQUIRE(result.size() == 2);
 
     CHECK(feature_ids(result[0]) == feature_id_set_t {1, 2, 3});
