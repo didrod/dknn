@@ -36,32 +36,6 @@ namespace dknn {
     return MPI_Type_commit(&__mpi_knn_query_result_entry_t__) == MPI_SUCCESS;
   }
 
-  vector<feature_id_t> scatter(feature_id_set_t const& train_feature_ids) {
-    vector<feature_id_t> flatten_train_feature_ids;
-    if (node_rank() == 0) {
-      flatten_train_feature_ids.reserve(train_feature_ids.size());
-      flatten_train_feature_ids.insert(
-        flatten_train_feature_ids.end(), train_feature_ids.begin(),
-        train_feature_ids.end());
-    }
-
-    vector<feature_id_t> subworker_train_feature_ids;
-    int subworker_trainset_size = train_feature_ids.size() / world_size();
-    if (subworker_trainset_size * world_size() != train_feature_ids.size()) {
-      std::cerr << "train feature size should be multiple of world size"
-                << std::endl;
-      return {};
-    }
-
-    subworker_train_feature_ids.resize(subworker_trainset_size);
-
-    MPI_Scatter(
-      flatten_train_feature_ids.data(), subworker_trainset_size, MPI_UINT64_T,
-      subworker_train_feature_ids.data(), subworker_trainset_size, MPI_UINT64_T,
-      0, MPI_COMM_WORLD);
-    return subworker_train_feature_ids;
-  }
-
   static vector<mpi_knn_query_result_entry_t> flatten_scattered(
     knn_set_query_result_t const& scattered_knn_results,
     size_t reserve_size = 0) {
