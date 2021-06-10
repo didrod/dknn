@@ -14,7 +14,8 @@ namespace dknn {
     // TODO
   }
 
-  using id_tagged_feature_distance_t = std::tuple<feature_id_t, double>;
+  using id_tagged_feature_distance_t =
+    std::tuple<feature_id_t, feature_distance_t, feature_class_t>;
 
   static inline std::vector<id_tagged_feature_distance_t>
   calculate_feature_distances(feature_t const& query_feature) {
@@ -34,29 +35,13 @@ namespace dknn {
         auto const delta = c_t - c_q;
         distance += delta * delta;
       }
-      distances[i] = {id, distance};
+      feature_class_t feature_class = 0;  // TODO
+      distances[i] = {id, distance, feature_class};
     }
     return distances;
   }
 
-  template <typename feature_container_it_t>
-  static inline feature_id_set_t feature_id_set_of(
-    feature_container_it_t s, feature_container_it_t e) {
-    feature_id_set_t result;
-    for (auto i = s; i != e; i++) {
-      auto const& [id, _] = *i;
-      result.emplace(id);
-    }
-    return result;
-  }
-
-  template <typename feature_container_t>
-  static inline feature_id_set_t feature_id_set_of(
-    feature_container_t const& container) {
-    return feature_id_set_of(container.begin(), container.end());
-  }
-
-  feature_id_set_t node_local_nearest_k(
+  knn_query_result_t node_local_nearest_k(
     size_t k, feature_t const& query_feature) {
     if (k > __local_train_feature_cache__.size()) {
       auto msg = "K is greater than train set size";
@@ -64,7 +49,8 @@ namespace dknn {
       std::cerr << "k: " << k << std::endl;
       std::cerr << "train set size: " << __local_train_feature_cache__.size()
                 << std::endl;
-      return feature_id_set_of(__local_train_feature_cache__);
+      // TODO
+      return {};
     }
 
     auto distances = calculate_feature_distances(query_feature);
@@ -78,19 +64,25 @@ namespace dknn {
     }
 
     auto comparison_function = [](auto const& a, auto const& b) {
-      auto const& [id_a, distance_a] = a;
-      auto const& [id_b, distance_b] = b;
+      auto const& [id_a, distance_a, class_a] = a;
+      auto const& [id_b, distance_b, class_b] = b;
       return distance_a <= distance_b;
     };
     std::partial_sort(
       distances.begin(), distances.begin() + k, distances.end(),
       comparison_function);
-    return feature_id_set_of(distances.begin(), distances.begin() + k);
+
+    knn_query_result_t result;
+    for (size_t i = 0; i < k; i++) {
+      auto const& [id, distance, cls] = distances.at(i);
+      result.emplace(id, feature_knn_query_result_info_t {distance, cls});
+    }
+    return result;
   }
 
-  std::vector<feature_id_set_t> node_local_nearest_k(
+  knn_set_query_result_t node_local_nearest_k(
     size_t k, feature_set_t const& query_set) {
-    std::vector<feature_id_set_t> result;
+    knn_set_query_result_t result;
     for (auto const& query_feature : query_set)
       result.emplace_back(node_local_nearest_k(k, query_feature));
     return result;
