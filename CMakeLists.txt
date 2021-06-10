@@ -34,7 +34,7 @@ target_compile_features(dknn_test PRIVATE cxx_std_17)
 add_custom_target(run DEPENDS main)
 add_custom_command(
   TARGET run
-  COMMAND mpiexec -n 4 ${CMAKE_CURRENT_BINARY_DIR}/main
+  COMMAND mpiexec -n 4 ${CMAKE_CURRENT_BINARY_DIR}/main examples/data.csv examples/q1.csv
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
   POST_BUILD
 )
