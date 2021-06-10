@@ -62,7 +62,7 @@ namespace dknn {
       gathered_flat_knn_results.data(), gather_size, MPI_UINT64_T, 0,
       MPI_COMM_WORLD);
     if (_rank != 0)
-      return {};
+      return {};  // early exit for non-master nodes.
 
     vector<feature_id_set_t> gathered_knn_results;
     gathered_knn_results.resize(query_set_size);
