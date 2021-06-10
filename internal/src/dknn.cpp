@@ -61,6 +61,8 @@ namespace dknn {
       local_flatten_knn_results.data(), k * query_set_size, MPI_UINT64_T,
       gathered_flat_knn_results.data(), gather_size, MPI_UINT64_T, 0,
       MPI_COMM_WORLD);
+    if (_rank != 0)
+      return {};
 
     vector<feature_id_set_t> gathered_knn_results;
     gathered_knn_results.resize(query_set_size);
