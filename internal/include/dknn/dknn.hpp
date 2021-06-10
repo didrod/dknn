@@ -3,6 +3,12 @@
 #include "dknn/typedefs.hpp"
 
 namespace dknn {
+  bool init(int* pargc, char*** pargv);
+  void term();
+
+  int node_rank();
+  int world_size();
+
   /**
    * finds nearest k features distributedly using MPI.
    */

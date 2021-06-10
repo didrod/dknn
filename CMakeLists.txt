@@ -21,14 +21,14 @@ target_compile_options(
 
 add_executable(main "")
 add_subdirectory(src)
-target_link_libraries(main PRIVATE internal MPI::MPI_CXX)
+target_link_libraries(main PRIVATE internal)
 target_compile_features(main PRIVATE cxx_std_17)
 
 include(cmake/configure_catch2.cmake)
 add_executable(dknn_test "")
 add_subdirectory(test)
 target_link_libraries(
-  dknn_test PRIVATE internal MPI::MPI_CXX Catch2::Catch2)
+  dknn_test PRIVATE internal Catch2::Catch2)
 target_compile_features(dknn_test PRIVATE cxx_std_17)
 
 add_custom_target(run DEPENDS main)

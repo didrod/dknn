@@ -1,10 +1,12 @@
 #include "dknn/dknn.hpp"
-#include <mpi.h>
+#include <iostream>
 
 int main(int argc, char** argv) {
-  MPI_Init(&argc, &argv);
+  if (!dknn::init(&argc, &argv)) {
+    std::cerr << "DKNN cluster init failed" << std::endl;
+    return -1;
+  }
 
-  MPI_Barrier(MPI_COMM_WORLD);
-  MPI_Finalize();
+  dknn::term();
   return 0;
 }
