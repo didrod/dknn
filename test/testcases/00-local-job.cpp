@@ -11,8 +11,8 @@ namespace dknn {
   }
 
   TEST_CASE("Test node-local knn search", "[local-0]") {
-    __local_train_feature_cache__.clear();
-    __local_train_feature_cache__ = {
+    __feature_dataset__.clear();
+    __feature_dataset__ = {
       // class 1
       {1, {0.0, 0.0}},
       {2, {0.1, 0.0}},

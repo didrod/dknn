@@ -22,23 +22,23 @@ TEST_CASE("Test distributed knn search", "[distributed-0]") {
   std::mt19937 rgen(20210610 + 31 * rank);
 
   REQUIRE(nworkers == 4);
-  dknn::__local_train_feature_cache__.clear();
+  dknn::__feature_dataset__.clear();
 
   switch (rank) {
   case 0:
-    dknn::__local_train_feature_cache__ =
+    dknn::__feature_dataset__ =
       generate_feature_dataset(rgen, {1, 2, 3, 4}, 0, 0);
     break;
   case 1:
-    dknn::__local_train_feature_cache__ =
+    dknn::__feature_dataset__ =
       generate_feature_dataset(rgen, {5, 6, 7}, 1.0, 0);
     break;
   case 2:
-    dknn::__local_train_feature_cache__ =
+    dknn::__feature_dataset__ =
       generate_feature_dataset(rgen, {13, 15, 17}, 5.0, 5.0);
     break;
   case 3:
-    dknn::__local_train_feature_cache__ =
+    dknn::__feature_dataset__ =
       generate_feature_dataset(rgen, {18, 19, 20}, 9.0, 10.0);
     break;
   default:

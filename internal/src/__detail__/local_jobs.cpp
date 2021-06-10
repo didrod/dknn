@@ -14,14 +14,14 @@ namespace dknn {
 
   static inline std::vector<id_tagged_feature_match_t>
   calculate_feature_matches(feature_t const& query_feature) {
-    size_t const N = __local_train_feature_cache__.size();
+    size_t const N = __feature_dataset__.size();
 
     std::vector<id_tagged_feature_match_t> matches;
     matches.resize(N);
 
 #pragma omp parallel for num_threads(4)
     for (size_t i = 0; i < N; i++) {
-      auto const& [id, train_feature] = *__local_train_feature_cache__.nth(i);
+      auto const& [id, train_feature] = *__feature_dataset__.nth(i);
 
       double distance = 0.;
       for (size_t i = 0; i < train_feature.size(); i++) {
@@ -37,22 +37,22 @@ namespace dknn {
   }
 
   knn_query_result_t nearest_k(size_t k, feature_t const& query_feature) {
-    if (k > __local_train_feature_cache__.size()) {
+    if (k > __feature_dataset__.size()) {
       auto msg = "K is greater than train set size";
       std::cerr << msg << std::endl;
       std::cerr << "k: " << k << std::endl;
-      std::cerr << "train set size: " << __local_train_feature_cache__.size()
+      std::cerr << "train set size: " << __feature_dataset__.size()
                 << std::endl;
       // TODO
       return {};
     }
 
     auto matches = calculate_feature_matches(query_feature);
-    if (matches.size() != __local_train_feature_cache__.size()) {
+    if (matches.size() != __feature_dataset__.size()) {
       auto msg = "incorrect number of matches during scattered KNN search.";
       std::cerr << msg << std::endl;
       std::cerr << "matches.size(): " << matches.size() << std::endl;
-      std::cerr << "train set size: " << __local_train_feature_cache__.size()
+      std::cerr << "train set size: " << __feature_dataset__.size()
                 << std::endl;
       return {};
     }
