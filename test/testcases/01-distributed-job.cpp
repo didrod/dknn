@@ -5,11 +5,11 @@
 #include <random>
 #include <catch2/catch.hpp>
 
-static auto scatter(
+static auto generate_feature_dataset(
   std::mt19937& rgen, dknn::feature_id_set_t const& ids, double x, double y) {
   std::normal_distribution<> rand(0, 0.1);
 
-  dknn::id_feature_dict_t result;
+  dknn::feature_dataset_t result;
   for (auto id : ids)
     result.emplace(id, dknn::feature_t {x + rand(rgen), y + rand(rgen)});
   return result;
@@ -26,17 +26,20 @@ TEST_CASE("Test distributed knn search", "[distributed-0]") {
 
   switch (rank) {
   case 0:
-    dknn::__local_train_feature_cache__ = scatter(rgen, {1, 2, 3, 4}, 0, 0);
+    dknn::__local_train_feature_cache__ =
+      generate_feature_dataset(rgen, {1, 2, 3, 4}, 0, 0);
     break;
   case 1:
-    dknn::__local_train_feature_cache__ = scatter(rgen, {5, 6, 7}, 1.0, 0);
+    dknn::__local_train_feature_cache__ =
+      generate_feature_dataset(rgen, {5, 6, 7}, 1.0, 0);
     break;
   case 2:
-    dknn::__local_train_feature_cache__ = scatter(rgen, {13, 15, 17}, 5.0, 5.0);
+    dknn::__local_train_feature_cache__ =
+      generate_feature_dataset(rgen, {13, 15, 17}, 5.0, 5.0);
     break;
   case 3:
     dknn::__local_train_feature_cache__ =
-      scatter(rgen, {18, 19, 20}, 9.0, 10.0);
+      generate_feature_dataset(rgen, {18, 19, 20}, 9.0, 10.0);
     break;
   default:
     CAPTURE("node rank seems to be incorrect");
