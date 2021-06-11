@@ -24,18 +24,22 @@ static bool load_test_dataset(int rank) {
 
   switch (rank) {
   case 0:
+    // cluster 0: around (0, 0)
     dknn::__feature_dataset__ =
       generate_feature_dataset(rgen, {1, 2, 3}, 0, 0, 0);
     return true;
   case 1:
+    // cluster 1: around (1.0, 0)
     dknn::__feature_dataset__ =
       generate_feature_dataset(rgen, {5, 6, 7}, 1, 1.0, 0);
     return true;
   case 2:
+    // cluster 2: around (5.0, 5.0)
     dknn::__feature_dataset__ =
       generate_feature_dataset(rgen, {13, 15, 17}, 2, 5.0, 5.0);
     return true;
   case 3:
+    // cluster 3: around (9.0, 10.0)
     dknn::__feature_dataset__ =
       generate_feature_dataset(rgen, {18, 19, 20}, 3, 9.0, 10.0);
     return true;
