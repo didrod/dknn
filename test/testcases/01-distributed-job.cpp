@@ -76,8 +76,6 @@ TEST_CASE("Test distributed knn search", "[distributed-0]") {
   auto const& q3 = query_results.at(3);
   auto const& q4 = query_results.at(4);
 
-  auto cluster_01 = dknn::feature_id_set_t {1, 2, 3, 5, 6, 7};
-
   CHECK(q0 == 0);
   CHECK((q1 == 0 || q1 == 1));
   CHECK(q2 == 2);
@@ -118,8 +116,6 @@ TEST_CASE(
   auto const& q2 = query_results.at(2);
   auto const& q3 = query_results.at(3);
   auto const& q4 = query_results.at(4);
-
-  auto cluster_01 = dknn::feature_id_set_t {1, 2, 3, 5, 6, 7};
 
   CHECK(q0 == 0);
   CHECK((q1 == 0 || q1 == 1));
