@@ -1,29 +1,17 @@
 # DKNN
 A toy implementation of distributed k nearest neighbors.
 
-## Build instruction
-* clone this repository. you might want to use the download button on the github webpage.
-* change working directory to the path where you just cloned.
-* copy-paste the following commands to initialize the build space.
-  ``` bash
-  $ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=yes
-  ```
-* run the following commands to actually build & run.
-  ``` bash
-  $ cmake --build build --target main
-  $ mpiexec -n 4 build/main
-  ```
-
-## Running testcase
+## Building & running examples
 ``` bash
-$ cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=yes
-$ cmake --build build --target run_test
+$ git clone https://github.com/didrod/dknn
+$ cmake -H./dknn -B./dknn-build -DCMAKE_BUILD_TYPE=Release
+$ cmake --build dknn-build --target main -- -j
+$ mpiexec -n 4 dknn-build/main dknn/examples/data.csv dknn/examples/q1.csv
 ```
 
-## Running formatter
-Copy-paste the following command.
-
+## Running unit tests
 ``` bash
-$ find . -regex '.*\.\(cpp\|hpp\|c\|h\)' \
-    -not -path './build/*' -and -not -path './.*' -exec clang-format -i -style=file {} \;
+$ cmake -H./dknn -B./dknn-build-dbg -DCMAKE_BUILD_TYPE=RelWithDebInfo
+$ cmake --build ./dknn-build-dbg --target run_test_single_node
+$ cmake --build ./dknn-build-dbg --target run_test_distributed
 ```
