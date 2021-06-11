@@ -115,7 +115,7 @@ namespace dknn {
     // (i.e. executed in each node concurrently).
     auto scattered_knn_results = nearest_k(k, query_set);
 
-    // then we gather the results to the master node.
+    // then we gather the result to the master node.
     auto gathered_knn_results = gather(k, scattered_knn_results);
     auto nearest_k_set = crop_nearest_k(k, gathered_knn_results);
     return classify(nearest_k_set);
