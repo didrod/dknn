@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <chrono>
 
 // csv parser : from http://www.zedwood.com/article/cpp-csv-parser
 static std::vector<std::string> csv_read_row(std::istream& in, char delimiter) {
@@ -72,8 +73,12 @@ int main(int argc, char** argv) {
   }
 
   auto query_file = argv[2];
+
+  auto tic = std::chrono::system_clock::now();
   auto query_results = dknn::mpi_brute_force_nearest_k(
     10, [query_file]() { return load_query_set(query_file); });
+  auto toc = std::chrono::system_clock::now();
+
   auto truths = load_class_truths(query_file);
 
   if (dknn::node_rank() == 0) {
@@ -86,6 +91,9 @@ int main(int argc, char** argv) {
     for (auto _class : truths)
       std::cout << _class << ", ";
     std::cout << std::endl;
+
+    std::chrono::duration<double> dt = toc - tic;
+    std::cout << "execution took: " << dt.count() << " (s)" << std::endl;
   }
 
   dknn::term();
